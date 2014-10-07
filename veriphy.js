@@ -10,6 +10,7 @@
 */
 
 var hasError = false;
+var firstInvalid = null;
 
 function veriphy(options) {
     
@@ -20,6 +21,8 @@ function veriphy(options) {
     this.errorContainer = options.errorContainer || 'console';
     
     this.scrollOffset = options.offset || 25;
+    
+    this.errorMarker = options.errorMarker || '.form-group';
     
     this.hasErrorMsg = false;
     
@@ -36,13 +39,22 @@ veriphy.prototype = {
     getHasMsg: function() {
         return hasError;  
     },
+    
+    setFirstInvalid: function(e) {
+        firstInvalid = e;
+    },
+    
+    getFirstInvalid: function() {
+        return firstInvalid;  
+    },
 
     checkAllInputs: function() {
         
-        var v = this, firstInvalid = null;
+        var v = this;
         
         // Reset all variables here
-        $('#mainForm input, #mainForm select').closest('div.form-group').removeClass('has-error');
+        //$('#mainForm input, #mainForm select').closest('div.form-group').removeClass('has-error');
+        $('.form-group').removeClass('has-error');
         $(v.errorContainer).html('');
         v.setHasMsg(false);
         // End resets
@@ -50,51 +62,69 @@ veriphy.prototype = {
         $('#mainForm input, #mainForm select').each(function(i) {
            
             var obj = $(this);
-            var type = obj.attr('type');
             
-            if ( type == 'text' ) {
-                if ( !validateText(obj, v) && firstInvalid == null ) {
-                    //console.log(obj.attr('name') + ': set as firstInvalid.');
-                    //firstInvalid = obj.attr('name');
-                    firstInvalid = obj;
-                } else {
-                    if ( !validateText(obj, v) ) {
-                        v.markInvalid(obj.attr('name'));
-                    }
-                }
-            } else if ( type == 'email' ) {
-                if ( !validateEmail(obj, v) && firstInvalid == null ) {
-                    //console.log(obj.attr('name') + ': set as firstInvalid.');
-                    //firstInvalid = obj.attr('name');
-                    firstInvalid = obj;
-                } else {
-                    if ( !validateEmail(obj, v) ) {
-                        v.markInvalid(obj.attr('name'));   
-                    }
-                }
-            } else if ( type == 'radio' ) {
-                if ( !validateRadio(obj, v) && firstInvalid == null ) {
-                    firstInvalid = obj;   
-                } else {
-                    if ( !validateRadio(obj, v) ) {
-                        v.markInvalid(obj.attr('name'));   
-                    }
-                }                    
-            } else if ( obj.is('select') ) {
-                if ( !validateSelects(obj, v) && firstInvalid == null ) {
-                    firstInvalid = obj;   
-                } else {
-                    if ( !validateSelects(obj, v) ) {
-                        v.markInvalid(obj.attr('name'));   
-                    }
-                }
-            }
+            v.validateField(obj);
             
         });
         
-        v.scrollToElement(firstInvalid);
+        console.log('FirstI: ' + v.getFirstInvalid());
+        v.scrollToElement(v.getFirstInvalid());
         
     }, // End checkAllInputs()
+    
+    validateField: function(obj) {
+        
+        var v = this;
+        var type = obj.attr('type');
+            
+        if ( type == 'text' ) {
+            if ( !validateText(obj, v) && v.getFirstInvalid() == null ) {
+                //firstInvalid = obj;
+                v.setFirstInvalid(obj);
+            } else {
+                if ( !validateText(obj, v) ) {
+                    v.markInvalid(obj.attr('name'));
+                }
+            }
+        } else if ( type == 'email' ) {
+            if ( !validateEmail(obj, v) && v.getFirstInvalid() == null ) {
+                //firstInvalid = obj;
+                v.setFirstInvalid(obj);
+            } else {
+                if ( !validateEmail(obj, v) ) {
+                    v.markInvalid(obj.attr('name'));   
+                }
+            }
+        } else if ( type == 'radio' || type == 'checkbox' ) {
+            if ( !validateRadio(obj, v) && v.getFirstInvalid() == null ) {
+                //firstInvalid = obj;   
+                v.setFirstInvalid(obj);
+            } else {
+                if ( !validateRadio(obj, v) ) {
+                    v.markInvalid(obj.attr('name'));   
+                }
+            }                    
+        } else if ( obj.is('select') ) {
+            if ( !validateSelects(obj, v) && v.getFirstInvalid() == null ) {
+                //firstInvalid = obj;
+                v.setFirstInvalid(obj);
+            } else {
+                if ( !validateSelects(obj, v) ) {
+                    v.markInvalid(obj.attr('name'));   
+                }
+            }
+        } else if ( type == 'number' ) {
+            if ( !validateNumbers(obj, v) && v.getFirstInvalid() == null ) {
+                v.setFirstInvalid(obj);   
+            } else {
+                if ( !validateNumbers(obj, v) ) {
+                    console.log('Marking Invalid: ' + obj.attr('name'));
+                    v.markInvalid(obj.attr('name'));   
+                }
+            }
+        }
+                
+    }, // End validateField()
     
     setErrorMessage: function(msg, container) {
         
@@ -126,11 +156,11 @@ veriphy.prototype = {
         }
         
         if ( obj instanceof Object ) {
-        
+            var v = this;
             $('html, body').animate({
                 scrollTop: obj.offset().top - this.scrollOffset
             }, 'slow', function() {
-                obj.focus().closest('div.form-group').addClass(cssClass);
+                obj.focus().closest(v.errorMarker).addClass(cssClass);
             });
             
         } else {
@@ -138,7 +168,7 @@ veriphy.prototype = {
             $('html, body').animate({
             scrollTop: $(theName).offset().top - this.scrollOffset
             }, 'slow', function() {
-                $(theName).focus().closest('div.form-group').addClass(cssClass);
+                $(theName).focus().closest(v.errorMarker).addClass(cssClass);
             });
         }
         
@@ -148,22 +178,23 @@ veriphy.prototype = {
      
         // If scrollTo is true we will scroll to the first, or only, input
         if ( invalidFields instanceof Array ) {
+            for ( i = 0; i < invalidFields.length; i++ ) {
+                $('[name="' + invalidFields[i] + '"]').closest(this.errorMarker).addClass('has-error');
+            }
             if ( scrollTo ) {
                 this.scrollToElement(invalidFields[0]);   
             }
-            for ( i = 0; i < invalidFields.length; i++ ) {
-                $('[name="' + invalidFields[i] + '"]').closest('div.form-group').addClass('has-error');   
-            }
         } else {
+            console.log('Markin\' Invalid: ' + invalidFields);
+            $('[name="' + invalidFields + '"]').closest(this.errorMarker).addClass('has-error');
             if ( scrollTo ) {
                this.scrollToElement(invalidFields); 
             }
-            $('[name="' + invalidFields + '"]').closest('div.form-group').addClass('has-error');
         } 
         
     }
     
-}
+} // End prototype { }
 
 function validateText(obj, v) {
     
@@ -171,6 +202,7 @@ function validateText(obj, v) {
     
     if ( obj.attr('required') && obj.val().length == 0 ) {
         //console.log(obj.attr('name') + ': is required but is blank.');
+        console.log('Invalid!');
         v.setErrorMessage('The selected field is required and cannot be left blank.');
         return false;
     }
@@ -246,3 +278,48 @@ function validateRadio(obj, v) {
     return true;
     
 } // End validateRadio()
+
+function validateNumbers(obj, v) {
+    
+    if ( obj.attr('required') && obj.val().length == 0 ) {
+        v.setErrorMessage('This field is required and cannot be left blank. :)');
+        v.markInvalid(obj.attr('name'));
+        return false;
+    } else if ( obj.data('veriphy-outputto') ) {
+        if ( !obj.data('veriphy-addto') || !obj.data('veriphy-outputto') ) {
+            console.log('Add Money: Requirements not met.');
+            v.markInvalid(obj.attr('name'));
+            return false;
+        } else {
+            var outObj = $("[name='" + obj.data('veriphy-outputto') + "']");
+            var baseVal = $("[name='" + obj.data('veriphy-addto') + "']").val();
+            console.log('ASA Val: ' + baseVal + ' Local: ' + obj.val());        
+            var total = parseFloat(baseVal) + parseFloat(obj.val());
+            outObj.val(total.toFixed(2));
+            obj.closest(v.errorMarker).removeClass('has-error');
+            return true;
+        }
+    } else {
+        return true;
+    }
+    
+}
+
+function addMoney(obj) {
+    
+    if ( !obj.data('veriphy-addto') || !obj.data('veriphy-outputto') ) {
+        console.log('Add Money: Requirements not met.');
+        return false;
+    } else {
+        
+        var outObj = $("[name='" + obj.data('veriphy-outputto') + "']");
+        var baseVal = $("[name='" + obj.data('veriphy-addto') + "']").val();
+        
+        console.log('ASA Val: ' + baseVal + ' Local: ' + obj.val());        
+        var total = parseFloat(baseVal) + parseFloat(obj.val());
+        outObj.val(total.toFixed(2));
+        return true;
+        
+    }
+    
+}
