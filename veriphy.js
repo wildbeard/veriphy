@@ -9,7 +9,7 @@
 var hasError = false;
 var firstInvalid = null;
 
-function veriphy(options) {
+var veriphy = function(options) {
     
     // If you don't specify a form object when creating the object you have to do it here
     // So either way you need stop being lazy and give the code what it needs to work. :)
@@ -137,7 +137,7 @@ veriphy.prototype = {
             } else {
                 if ( !validateNumbers(obj, v) ) {
                     console.log('Marking Invalid: ' + obj.attr('name'));
-                    v.markInvalid(obj.attr('name'));   
+                    v.markInvalid(obj.attr('name'));
                 }
             }
         }
