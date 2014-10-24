@@ -1,12 +1,9 @@
 /*
     Author: Preston Haddock
-    Date: 09/30/2014
+    Date Created: 09/30/2014
+    Last Updated: 10/24/2014
     Description: Used to validate forms
-    Version: 1.3
-    Version = x.y
-    x = Release
-    y = Revision
-    I judge y based on how many times I've deleted this POS and remade it.
+    Version: 1.4
 */
 
 var hasError = false;
@@ -14,15 +11,30 @@ var firstInvalid = null;
 
 function veriphy(options) {
     
+    // If you don't specify a form object when creating the object you have to do it here
+    // So either way you need stop being lazy and give the code what it needs to work. :)
+    this.formContainer = options.formContainer || "#zzz";
+    
+    // You don't have to specify an email pattern because this one is amazing..sort of
+    // This one is widely accepted as the 'go-to email pattern'
     this.emailPattern = options.emailPattern || /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/i;
     
+    // Stop being lazy, specifiy an error message
+    // Please note that this is for fields that aren't caught in the code below and need a generic error
     this.errorMsg = options.errorMsg || 'Input error. Please correct the error(s) before continuing.';
     
+    // If you don't specify a place to write out the error it is going to print it to the console
+    // If it prints out to the console then the user is unaware. If the user is unaware they complain
+    // When they complain they call tech support. When they call tech support your techies flip out and go on strike
+    // When the techies go on strike the internet dies. Don't let the internet die.
     this.errorContainer = options.errorContainer || 'console';
     
+    // Scroll this many pixels higher than the object that was bad
+    // Remember: You always want the higher ground.
     this.scrollOffset = options.offset || 25;
     
-    this.errorMarker = options.errorMarker || '.form-group';
+    // Same thing with formContainer since not everyone uses bootstrap
+    this.errorMarker = options.errorMarker || '#zzz';
     
     this.hasErrorMsg = false;
     
@@ -54,12 +66,13 @@ veriphy.prototype = {
         
         // Reset all variables here
         //$('#mainForm input, #mainForm select').closest('div.form-group').removeClass('has-error');
-        $('.form-group').removeClass('has-error');
+        $(v.errorMarker).removeClass('has-error');
         $(v.errorContainer).html('');
+        v.setFirstInvalid(null);
         v.setHasMsg(false);
         // End resets
         
-        $('#mainForm input, #mainForm select').each(function(i) {
+        $(v.formContainer + ' input, ' + v.formContainer + ' select').each(function(i) {
            
             var obj = $(this);
             
@@ -67,8 +80,13 @@ veriphy.prototype = {
             
         });
         
-        console.log('FirstI: ' + v.getFirstInvalid());
-        v.scrollToElement(v.getFirstInvalid());
+        //console.log('FirstI: ' + v.getFirstInvalid());
+        if ( v.getFirstInvalid() == null ) {
+            return true;
+        } else {
+            v.scrollToElement(v.getFirstInvalid());
+            return false;
+        }
         
     }, // End checkAllInputs()
     
@@ -185,7 +203,7 @@ veriphy.prototype = {
                 this.scrollToElement(invalidFields[0]);   
             }
         } else {
-            console.log('Markin\' Invalid: ' + invalidFields);
+            //console.log('Markin\' Invalid: ' + invalidFields);
             $('[name="' + invalidFields + '"]').closest(this.errorMarker).addClass('has-error');
             if ( scrollTo ) {
                this.scrollToElement(invalidFields); 
@@ -202,7 +220,7 @@ function validateText(obj, v) {
     
     if ( obj.attr('required') && obj.val().length == 0 ) {
         //console.log(obj.attr('name') + ': is required but is blank.');
-        console.log('Invalid!');
+        //console.log('Invalid!');
         v.setErrorMessage('The selected field is required and cannot be left blank.');
         return false;
     }
@@ -260,7 +278,7 @@ function validateSelects(obj, v) {
     
     if ( obj.attr('required') && obj[0].selectedIndex == 0 ) {
         v.markInvalid(obj.attr('name'));
-        v.setErrorMessage('Please select your association.');
+        v.setErrorMessage('You must select an option.');
         return false;  
     }
     
