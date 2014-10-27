@@ -36,6 +36,9 @@ var veriphy = function(options) {
     // Same thing with formContainer since not everyone uses bootstrap
     this.errorMarker = options.errorMarker || '#zzz';
     
+    // Minumum length for things like passwords..Or you know..Other things.
+    this.minLength = options.minLength || 8;
+    
     this.hasErrorMsg = false;
     
 }
@@ -97,7 +100,6 @@ veriphy.prototype = {
             
         if ( type == 'text' ) {
             if ( !validateText(obj, v) && v.getFirstInvalid() == null ) {
-                //firstInvalid = obj;
                 v.setFirstInvalid(obj);
             } else {
                 if ( !validateText(obj, v) ) {
@@ -106,7 +108,6 @@ veriphy.prototype = {
             }
         } else if ( type == 'email' ) {
             if ( !validateEmail(obj, v) && v.getFirstInvalid() == null ) {
-                //firstInvalid = obj;
                 v.setFirstInvalid(obj);
             } else {
                 if ( !validateEmail(obj, v) ) {
@@ -115,7 +116,6 @@ veriphy.prototype = {
             }
         } else if ( type == 'radio' || type == 'checkbox' ) {
             if ( !validateRadio(obj, v) && v.getFirstInvalid() == null ) {
-                //firstInvalid = obj;   
                 v.setFirstInvalid(obj);
             } else {
                 if ( !validateRadio(obj, v) ) {
@@ -124,7 +124,6 @@ veriphy.prototype = {
             }                    
         } else if ( obj.is('select') ) {
             if ( !validateSelects(obj, v) && v.getFirstInvalid() == null ) {
-                //firstInvalid = obj;
                 v.setFirstInvalid(obj);
             } else {
                 if ( !validateSelects(obj, v) ) {
@@ -139,6 +138,12 @@ veriphy.prototype = {
                     console.log('Marking Invalid: ' + obj.attr('name'));
                     v.markInvalid(obj.attr('name'));
                 }
+            }
+        } else if ( type === 'password' ) { 
+            if ( !validatePassword(obj, v) && v.getFirstInvalid() == null ) {
+                v.setFirstInvalid(obj);
+            } else {
+                validatePassword(obj, v);   
             }
         }
                 
@@ -341,3 +346,49 @@ function addMoney(obj) {
     }
     
 }
+
+function validatePassword(obj, v) {
+    
+    var cTo, mLength;
+    
+    // If it can't the compare data, don't compare
+    if ( !obj.data('veriphy-compare') && !obj.attr('required') ) {
+        return true; // Not required and no compare return true - pretty dumb - Seriously password isn't required? Whatever.
+    } else if ( !obj.attr('required') ) {
+        return true; // Not required so just return true - What kind of password isn't required..?
+    } else if ( obj.data('veriphy-compare') || obj.attr('required') ) {
+        
+        if ( obj.data('veriphy-minlength') ) {
+            mLength = obj.data('veriphy-minlength');   
+        } else {
+            mLength = v.minLength;
+        }
+        
+        if ( obj.data('veriphy-compare') ) {
+            
+            cTo = obj.data('veriphy-compare');
+            
+            // Required and it has something to compare to!
+            if ( obj.val().length == 0 || obj.val().length < mLength ) {
+                v.setErrorMessage('Password is either empty or does not meet minimum length.');
+                v.markInvalid(obj.attr('name'));
+                return false; // Wasn't long enough/empty
+            } else if ( obj.val() != $('[name="' + cTo + '"]').val() ) {
+                v.setErrorMessage('Passwords do not match.');
+                v.markInvalid(obj.attr('name'));
+                return false;
+            } else if ( obj.val() === $('[name="' + cTo + '"').val() ) {
+                return true; // Passwords match and meet requirements   
+            }
+        } else {
+            if ( obj.val().length != 0 && obj.val().length >= mLength ) {
+                return true;   
+            } else {
+                v.markInvalid(obj.attr('name'));
+                v.setErrorMessage('Password was either empty or was not long enough.');
+                return false;
+            }
+        }
+    }
+    
+} // End validatePassword
