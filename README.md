@@ -53,10 +53,10 @@ data-veriphy-Options
 
 Veriphy takes advantage of the new(ish) data- attribute in HTML. With it you can specify cool things like adding money between fields, comparing two emails together, or just comparing two fields together. ( Which only works for passwords :( )
 
-+ data-veriphy-compare="" - Specify the name of the field you wish to compare the current field to. Currently works with passswords and emails.
-+ data-veriphy-addto="" - Specify the name of the field you wish to add money to. Can be output using..
-+ data-veriphy-outputto="" - Specify the name of the field you wish to output addmoney to.
-+ data-veriphy-minlength="" - Specify the minimum char count for the given field. Currently only works with password fields and will override the parameter in the options.
++ `data-veriphy-compare=""` - Specify the name of the field you wish to compare the current field to. Currently works with passswords and emails.
++ `data-veriphy-addto=""` - Specify the name of the field you wish to add money to. Can be output using..
++ `data-veriphy-outputto=""` - Specify the name of the field you wish to output addmoney to.
++ `data-veriphy-minlength=""` - Specify the minimum char count for the given field. Currently only works with password fields and will override the parameter in the options.
 
 Coming Soon: More Options!
 =======
