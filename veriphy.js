@@ -1,9 +1,13 @@
 /*
-    Author: Preston Haddock
+    Author: Wild Beard
     Date Created: 09/30/2014
-    Last Updated: 10/24/2014
-    Description: Used to validate forms
-    Version: 1.4
+    Last Updated: 10/28/2014
+    Description: 
+    A totally awesome and not overly complicated way to validate forms. (Sarcasm?)
+    Simply import this into your file, create an object, and pass it the options you want to change!
+    But wait there's more! You can use the HTML data- attribute to override specific options!
+    Read the README.md to learn about this! ( As if Caps lock wasn't enough of a hint that it was important )
+    Version: 1.5
 */
 
 var hasError = false;
@@ -13,7 +17,8 @@ var veriphy = function(options) {
     
     // If you don't specify a form object when creating the object you have to do it here
     // So either way you need stop being lazy and give the code what it needs to work. :)
-    this.formContainer = options.formContainer || "#zzz";
+    // Provide a jQuery style selector, by default is set to #theForm
+    this.formContainer = options.formContainer || "#theForm";
     
     // You don't have to specify an email pattern because this one is amazing..sort of
     // This one is widely accepted as the 'go-to email pattern'
@@ -33,11 +38,20 @@ var veriphy = function(options) {
     // Remember: You always want the higher ground.
     this.scrollOffset = options.offset || 25;
     
-    // Same thing with formContainer since not everyone uses bootstrap
-    this.errorMarker = options.errorMarker || '#zzz';
+    // Controls which inputs can be marked as invald. This should be the container
+    // that holds the input. By default it is set to .error-marker and if changed
+    // should also include a jQuery style selector.
+    this.errorMarker = options.errorMarker || '.error-marker';
     
-    // Minumum length for things like passwords..Or you know..Other things.
+    // Provides the class that will let the user know if they've goofed up on a specific input
+    // or if the input is valid.
+    // This is applied to the element(s) found by errorMarker
+    this.errorClass = options.errorClass || 'invalid-input';
+    this.validClass = options.validClass || 'valid-input'; // Unused ( 1.5 )
+    
+    // Minumum and max length of input fields.
     this.minLength = options.minLength || 8;
+    this.maxLength = options.maxLength || 25; // Unused ( 1.5 )
     
     this.hasErrorMsg = false;
     
@@ -68,8 +82,7 @@ veriphy.prototype = {
         var v = this;
         
         // Reset all variables here
-        //$('#mainForm input, #mainForm select').closest('div.form-group').removeClass('has-error');
-        $(v.errorMarker).removeClass('has-error');
+        $(v.errorMarker).removeClass(v.errorClass);
         $(v.errorContainer).html('');
         v.setFirstInvalid(null);
         v.setHasMsg(false);
@@ -171,7 +184,7 @@ veriphy.prototype = {
     
     scrollToElement: function(obj) {
         
-        var cssClass = 'has-error';
+        var cssClass = this.errorClass;
         
         if ( typeof obj === 'undefined' ) {
             console.log('scrollToElement() requires that the input\'s name be provided.');
@@ -202,14 +215,14 @@ veriphy.prototype = {
         // If scrollTo is true we will scroll to the first, or only, input
         if ( invalidFields instanceof Array ) {
             for ( i = 0; i < invalidFields.length; i++ ) {
-                $('[name="' + invalidFields[i] + '"]').closest(this.errorMarker).addClass('has-error');
+                $('[name="' + invalidFields[i] + '"]').closest(this.errorMarker).addClass(this.errorClass);
             }
             if ( scrollTo ) {
                 this.scrollToElement(invalidFields[0]);   
             }
         } else {
             //console.log('Markin\' Invalid: ' + invalidFields);
-            $('[name="' + invalidFields + '"]').closest(this.errorMarker).addClass('has-error');
+            $('[name="' + invalidFields + '"]').closest(this.errorMarker).addClass(this.errorClass);
             if ( scrollTo ) {
                this.scrollToElement(invalidFields); 
             }
@@ -319,7 +332,7 @@ function validateNumbers(obj, v) {
             console.log('ASA Val: ' + baseVal + ' Local: ' + obj.val());        
             var total = parseFloat(baseVal) + parseFloat(obj.val());
             outObj.val(total.toFixed(2));
-            obj.closest(v.errorMarker).removeClass('has-error');
+            obj.closest(v.errorMarker).removeClass(v.errorClass);
             return true;
         }
     } else {
@@ -392,3 +405,50 @@ function validatePassword(obj, v) {
     }
     
 } // End validatePassword
+
+function dataOptions(obj) {
+
+    var options = {
+        minLength: "",
+        maxLength: "",
+        regex: "",
+        compare: "",
+        addto: "",
+        output: ""
+    };
+    
+    var data = obj.data();
+    
+    for ( var z in data ) {
+        switch (z) {
+
+            case "veriphyMinlength":
+                options["minLength"] = data[z];
+            break;
+                
+            case "veriphyMaxlength":
+                options["maxLength"] = data[z];
+            break;
+                
+            case "veriphyRegex":
+                options["regex"] = data[z];
+            break;
+                
+            case "veriphyCompare":
+                options["compare"] = data[z];
+            break;
+                
+            case "veriphyAddto":
+                options["addto"] = data[z];
+            break;
+                
+            case "veriphyOutput":
+                options["output"] = data[z];
+            break;
+
+        }
+    }
+    
+    return options;
+    
+}

@@ -1,0 +1,22 @@
+/*
+    Author: Wild Beard
+    Date Created: 10/28/2014
+    Version: 0.1
+    Description: CSS to be used side-by-side, because they're married, with veriphy.js.
+*/
+
+.redhead {
+    color: #db2336;
+}
+.invalid-input {
+    color: #db2336;
+}
+.invalid-input input, .invalid-input select, .invalid-input textarea {
+    border: 1px solid #db2336;
+}
+.valid-input {
+    color: #5cb85c;
+}
+.valid-input input, .valid-input select, .valid-input textarea {
+    border: 1px solid #5cb85c;
+}
