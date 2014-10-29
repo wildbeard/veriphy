@@ -51,7 +51,7 @@ var veriphy = function(options) {
     
     // Minumum and max length of input fields.
     this.minLength = options.minLength || 8;
-    this.maxLength = options.maxLength || 25; // Unused ( 1.5 )
+    this.maxLength = options.maxLength || 25; // As of 1.5+ used on the following: text validation :(
     
     this.hasErrorMsg = false;
     
