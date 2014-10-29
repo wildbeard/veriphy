@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+    <head>
+    
+        <title>Veriphy Demo</title>
+        
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        
+        <link rel="stylesheet" href="veriphy.css" media="screen" />
+        <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" media="screen" />
+        
+        <style>
+            .form-control {
+                width: auto;
+            }
+        </style>
+    
+    </head>
+    
+    <body>
+    
+        <div class="container">
+        
+            <h1>Veriphy Demo Page</h1>
+            
+            <p>Below you will find some examples of how veriphy works. Just give the form a quick submit to see it in action.</p>
+            
+            <p>Oh and this isn't mobile friendly because I'm lazy af.</p>
+            
+            <div class="row">
+            
+                <div class="col-md-8">
+                
+                    <h2>Login</h2>
+                    
+                    <form id="theForm" class="form-inline">
+                    
+                        <div class="form-group input-marker">
+                            <label class="control-label">Username</label>
+                            <input type="text" name="fName" class="form-control" required />
+                        </div>
+                        
+                        <div class="form-group input-marker">
+                            <label class="control-label">Password</label>
+                            <input type="password" name="pass" class="form-control" required />
+                        </div>
+                        
+                        <div class="form-group">
+                            <button type="button" class="btn btn-success btn-sm" onclick="validateForm('theForm')">Login</button>
+                        </div>
+                        
+                    </form>
+                    
+                    <h2>Login Part Duece</h2>
+                    
+                    <form id="theForm1" class="form-inline">
+                        <div class="form-group input-marker">
+                            <label class="control-label">Username</label>
+                            <input type="text" name="uNameOne" class="form-control" data-veriphy-minlength="8" data-veriphy-maxlength="15" required />
+                        </div>
+                        <div class="form-group input-marker">
+                            <label class="control-label">Password</label>
+                            <input type="password" name="passOne" class="form-control" data-veriphy-minlength="8" data-veriphy-maxlength="15" required />
+                        </div>
+                        <div class="form-group">
+                            <button type="button" class="btn btn-success btn-sm" onclick="validateForm('theForm1')">Login</button>
+                        </div>
+                    </form>
+                    
+                    <h2>Email Stuff</h2>
+                    
+                    <form id="theForm2">
+                        
+                        <div class="form-group input-marker">
+                            <label>Email</label>
+                            <input type="email" name="pEmail" class="form-control" data-veriphy-compare="cpEmail" size="50" />
+                        </div>
+                        
+                        <div class="form-group input-marker">
+                            <label>Confirm Email</label>
+                            <input type="email" name="cpEmail" class="form-control" size="50" />
+                        </div>
+                        
+                        <div class="form-group">
+                            <button type="button" class="btn btn-success btn-sm" onclick="validateForm('theForm2')">Compare</button>
+                        </div>
+                        
+                    </form>
+                    
+                    <h2>Phone Number</h2>
+                    
+                    <form id="theForm3">
+                        <div class="form-group input-marker">
+                            <label>Phone Number</label>
+                            <input type="text" name="phone" class="form-control" data-veriphy-type="phone" placeholder="Ex: (555) 555-5555" />
+                        </div>
+                        <div class="form-group">
+                            <button type="button" class="btn btn-success btn-sm" onclick="validateForm('theForm3')">Submit</button>
+                        </div>
+                    </form>
+                    
+                    <div class="well well-sm">
+                    
+                        <h4>JS Errors:</h4>
+                        
+                        <div id="errors" class="redhead"></div>
+                        
+                    </div>
+                    
+                </div>
+                
+                <div class="col-md-4">
+                    <div>
+                        <h3>Form Info</h3>
+                        <div id="errorContainer">
+                            <p>Errors will be displayed here.</p>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+        
+        </div>
+        
+        <!-- Scripts -->
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+        <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+        <script src="../veriphy.js"></script>
+        <script>
+            window.onerror = function(error, url, line) {
+                $("#errors").append("Error: " + error + " on line: " + line + " url: " + url + "<br />");
+            };
+            
+            function validateForm(name) {
+             
+                var v = new veriphy({ 
+                    formContainer: "#" + name,
+                    errorContainer: "#errorContainer",
+                    errorMarker: ".input-marker",
+                    errorClass: "invalid-input",
+                    offset: 20
+                });
+                
+                v.checkAllInputs();
+                
+            }
+            
+        </script>
+        
+    </body>
+
+</html>

@@ -1,12 +1,11 @@
 /*
     Author: Wild Beard
     Date Created: 09/30/2014
-    Last Updated: 10/28/2014
+    Last Updated: 10/29/2014
     Description: 
     A totally awesome and not overly complicated way to validate forms. (Sarcasm?)
-    Simply import this into your file, create an object, and pass it the options you want to change!
-    But wait there's more! You can use the HTML data- attribute to override specific options!
-    Read the README.md to learn about this! ( As if Caps lock wasn't enough of a hint that it was important )
+    Notes:
+    When passing in a regex as a string you must first escape the first \, so \w becomes \\w. Or you know, just pass in the regex \w.
     Version: 1.5
 */
 
@@ -23,6 +22,7 @@ var veriphy = function(options) {
     // You don't have to specify an email pattern because this one is amazing..sort of
     // This one is widely accepted as the 'go-to email pattern'
     this.emailPattern = options.emailPattern || /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/i;
+    this.phonePattern = options.phonePattern || /(\([0-9]{3}\) |\([0-9]{3}\)\s*?)[0-9]{3}[-\s*]?[0-9]{4}/g;
     
     // Stop being lazy, specifiy an error message
     // Please note that this is for fields that aren't caught in the code below and need a generic error
@@ -193,19 +193,17 @@ veriphy.prototype = {
         
         if ( obj instanceof Object ) {
             var v = this;
+            obj.focus().closest(v.errorMarker).addClass(cssClass);
             $('html, body').animate({
                 scrollTop: obj.offset().top - this.scrollOffset
-            }, 'slow', function() {
-                obj.focus().closest(v.errorMarker).addClass(cssClass);
-            });
+            }, 'slow');
             
         } else {
             var theName = "[name='" + obj + "']";
+            $(theName).focus().closest(v.errorMarker).addClass(cssClass);
             $('html, body').animate({
             scrollTop: $(theName).offset().top - this.scrollOffset
-            }, 'slow', function() {
-                $(theName).focus().closest(v.errorMarker).addClass(cssClass);
-            });
+            }, 'slow');
         }
         
     }, // End scrollToElement()
@@ -232,16 +230,91 @@ veriphy.prototype = {
     
 } // End prototype { }
 
+// Begin internal functions
+
 function validateText(obj, v) {
     
-    // v is the context of veriphy
-    
-    if ( obj.attr('required') && obj.val().length == 0 ) {
-        //console.log(obj.attr('name') + ': is required but is blank.');
-        //console.log('Invalid!');
+    /*if ( obj.attr('required') && obj.val().length == 0 ) {
         v.setErrorMessage('The selected field is required and cannot be left blank.');
         return false;
+    }*/
+    
+    var opts = obj.data(), req = obj.attr('required'), l = 0;
+    
+    for ( var z in opts ) {
+        l++;
     }
+    
+    if ( obj.data("veriphy-type") == "phone" ) {
+        if ( ( req && obj.val().length == 0 ) || ( req && obj.val() == " " ) ) {
+            v.setErrorMessage('The selected field is required and cannot be left blank.');
+            return false;
+        }
+        if ( !regexTest(v.phonePattern, obj.val()) ) {
+            v.setErrorMessage('Phone number is in an improper format. Try something like: (555) 555-5555.');
+            return false;
+        }
+    }
+    
+    if ( req ) {
+        if ( (l == 0 && obj.val().length == 0) || (l == 0 && obj.val() == " ") ) {
+            v.setErrorMessage('The selected field is required and cannot be left blank.');
+            return false;
+        } else {
+            // There were options so we're going to figure out what they are here
+            var min, max, compare, regex;
+            for ( var z in opts ) {
+                switch (z) {
+
+                    case "veriphyMinlength":
+                        min = opts[z];
+                    break;
+
+                    case "veriphyMaxlength":
+                        max = opts[z];
+                    break;
+
+                    case "veriphyRegex":
+                        regex = opts[z];
+                    break;
+
+                    case "veriphyCompare":
+                        compare = opts[z];
+                    break;
+
+                }
+            } // End for
+            
+            // Validate the character count.
+            if ( ( min && max ) && ( obj.val().length >= min && obj.val().length <= max ) ) {
+                if ( /^\s+$/.test(obj.val()) ) {
+                    v.setErrorMessage('The selected input is required but only contains spaces.');
+                    return false;
+                } else if ( regex ) {
+                    if ( !regexTest(regex, obj.val() ) ) {
+                        v.setErrorMessage('The selected input is not valid and must be corrected.');
+                        return false;
+                    }
+                }
+            } else if ( max && obj.val().length > max ) {
+                v.setErrorMessage('The selected input exceeds the max character length of ' + max);
+                return false;
+            } else if ( min && obj.val().length < min ) {
+                v.setErrorMessage('The selected input is less than the minimum character length of ' + min);
+                return false;
+            } 
+            
+            // Validate compare
+            if ( compare ) {
+                if ( !compareVals(obj, $('[name="' + compare + '"]')) ) {
+                    v.setErrorMessage('The selected input does not match it\'s partner input.');
+                    return false;
+                }
+            }
+            
+        } // End if req else
+        
+    } // End if required
     
     return true;
     
@@ -406,49 +479,29 @@ function validatePassword(obj, v) {
     
 } // End validatePassword
 
-function dataOptions(obj) {
-
-    var options = {
-        minLength: "",
-        maxLength: "",
-        regex: "",
-        compare: "",
-        addto: "",
-        output: ""
-    };
+function compareVals(obj1, obj2) {
     
-    var data = obj.data();
-    
-    for ( var z in data ) {
-        switch (z) {
-
-            case "veriphyMinlength":
-                options["minLength"] = data[z];
-            break;
-                
-            case "veriphyMaxlength":
-                options["maxLength"] = data[z];
-            break;
-                
-            case "veriphyRegex":
-                options["regex"] = data[z];
-            break;
-                
-            case "veriphyCompare":
-                options["compare"] = data[z];
-            break;
-                
-            case "veriphyAddto":
-                options["addto"] = data[z];
-            break;
-                
-            case "veriphyOutput":
-                options["output"] = data[z];
-            break;
-
-        }
+    if ( obj1.val() != obj2.val() ) {
+        return false;
+    } else {
+        return true;
     }
     
-    return options;
+}
+
+function regexTest(regex, str) {
+    
+    var reg;
+    if ( regex instanceof RegExp ) {
+        reg = new RegExp(regex);
+    } else {
+        reg = new RegExp(regex, "g");
+    }
+    
+    if ( reg.test(str) ) {
+        return true;
+    } else {
+        return false;
+    }
     
 }
