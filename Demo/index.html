@@ -15,6 +15,12 @@
             .form-control {
                 width: auto;
             }
+            .cCard::-webkit-outer-spin-button,
+            .cCard::-webkit-inner-spin-button {
+                /* display: none; <- Crashes Chrome on hover */
+                -webkit-appearance: none;
+                margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
+            }
         </style>
     
     </head>
@@ -100,6 +106,10 @@
                             <label>Phone Number</label>
                             <input type="text" name="phone" class="form-control" data-veriphy-type="phone" placeholder="Ex: (555) 555-5555" />
                         </div>
+                        <div class="form-group input-marker">
+                            <label>Credit Card Number</label>
+                            <input type="number" name="cCard" class="form-control cCard" data-veriphy-type="creditcard" required />
+                        </div>
                         <div class="form-group">
                             <button type="button" class="btn btn-success btn-sm" onclick="validateForm('theForm3')">Submit</button>
                         </div>
@@ -131,23 +141,41 @@
         <!-- Scripts -->
         <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
         <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+        <script>
+            (function() {
+                var old = console.log;
+                var logger = document.getElementById('errors');
+                console.log = function (message) {
+                    if ( typeof message == 'object' ) {
+                        logger.HTML += 'Console: ' + (JSON && JSON.stringify ? JSON.stringify(message) : message) + '<br />';   
+                    } else {
+                        logger.innerHTML += 'Console: ' + message + '<br />';   
+                    }
+                }
+            })();
+        </script>
         <script src="../veriphy.js"></script>
         <script>
             window.onerror = function(error, url, line) {
                 $("#errors").append("Error: " + error + " on line: " + line + " url: " + url + "<br />");
             };
             
+            var v = new veriphy({ 
+                errorContainer: "#errorContainer",
+                errorMarker: ".input-marker",
+                errorClass: "invalid-input",
+                offset: 20
+            });
+            
             function validateForm(name) {
-             
-                var v = new veriphy({ 
-                    formContainer: "#" + name,
-                    errorContainer: "#errorContainer",
-                    errorMarker: ".input-marker",
-                    errorClass: "invalid-input",
-                    offset: 20
-                });
                 
-                v.checkAllInputs();
+                v.formContainer = '#' + name;
+                
+                if ( !v.checkAllInputs() ) {
+                    console.log('Invalid.');
+                } else {
+                    console.log('Valid.');
+                }
                 
             }
             

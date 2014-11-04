@@ -1,12 +1,13 @@
 /*
     Author: Wild Beard
     Date Created: 09/30/2014
-    Last Updated: 10/29/2014
+    Last Updated: 11/4/2014
     Description: 
     A totally awesome and not overly complicated way to validate forms. (Sarcasm?)
     Notes:
     When passing in a regex as a string you must first escape the first \, so \w becomes \\w. Or you know, just pass in the regex \w.
-    Version: 1.5
+    Debating on where to place credit card validation: numbers or text...Seems obvious but still..
+    Version: 1.55
 */
 
 var hasError = false;
@@ -55,6 +56,10 @@ var veriphy = function(options) {
     
     this.hasErrorMsg = false;
     
+    // Created a function to reset all the changing variables such as firstInvalid and error messages.
+    // This is used in checkAllInputs() to reset the form so things will be re-checked.
+    this.reset = reset;
+    
 }
 
 veriphy.prototype = {
@@ -82,10 +87,7 @@ veriphy.prototype = {
         var v = this;
         
         // Reset all variables here
-        $(v.errorMarker).removeClass(v.errorClass);
-        $(v.errorContainer).html('');
-        v.setFirstInvalid(null);
-        v.setHasMsg(false);
+        v.reset();
         // End resets
         
         $(v.formContainer + ' input, ' + v.formContainer + ' select').each(function(i) {
@@ -110,12 +112,14 @@ veriphy.prototype = {
         
         var v = this;
         var type = obj.attr('type');
+        var x;
             
         if ( type == 'text' ) {
-            if ( !validateText(obj, v) && v.getFirstInvalid() == null ) {
+            x = validateText(obj, v);
+            if ( !x && v.getFirstInvalid() == null ) {
                 v.setFirstInvalid(obj);
             } else {
-                if ( !validateText(obj, v) ) {
+                if ( !x ) {
                     v.markInvalid(obj.attr('name'));
                 }
             }
@@ -136,19 +140,20 @@ veriphy.prototype = {
                 }
             }                    
         } else if ( obj.is('select') ) {
-            if ( !validateSelects(obj, v) && v.getFirstInvalid() == null ) {
+            x = validateSelects(obj, v);
+            if ( !x && v.getFirstInvalid() == null ) {
                 v.setFirstInvalid(obj);
             } else {
-                if ( !validateSelects(obj, v) ) {
+                if ( !x ) {
                     v.markInvalid(obj.attr('name'));   
                 }
             }
         } else if ( type == 'number' ) {
-            if ( !validateNumbers(obj, v) && v.getFirstInvalid() == null ) {
+            x = validateNumbers(obj, v);
+            if ( !x && v.getFirstInvalid() == null ) {
                 v.setFirstInvalid(obj);   
             } else {
-                if ( !validateNumbers(obj, v) ) {
-                    console.log('Marking Invalid: ' + obj.attr('name'));
+                if ( !x ) {
                     v.markInvalid(obj.attr('name'));
                 }
             }
@@ -233,11 +238,6 @@ veriphy.prototype = {
 // Begin internal functions
 
 function validateText(obj, v) {
-    
-    /*if ( obj.attr('required') && obj.val().length == 0 ) {
-        v.setErrorMessage('The selected field is required and cannot be left blank.');
-        return false;
-    }*/
     
     var opts = obj.data(), req = obj.attr('required'), l = 0;
     
@@ -390,6 +390,31 @@ function validateRadio(obj, v) {
 
 function validateNumbers(obj, v) {
     
+    // Used for credit card validation. Simple. Is it 0-9 and contain no special characters?
+    // Could probably just be simplified to the regex tester. However it wouldn't be able to tell you what went wrong.
+    // Well unless you provided different regex for each circumstance.
+    if ( obj.data("veriphy-type") == "creditcard" && obj.attr("required") ) {
+        
+        var regex = new RegExp(/[0-9]{16}/g);
+        
+        if ( obj.val().length < 16 && obj.val().length > 1 ) {
+            console.log('Credit card is required and isn\'t long enough. Length: ' + obj.val().length + ' Required Length: 16');
+            return false;   
+        } else if ( obj.val().length > 16 ) {
+            console.log('The selected input is too long exceeding the max length of 16.');
+            return false;  
+        } else if ( obj.val().length == 0 || obj.val() == " " ) {
+            console.log('This field is required and cannot be left blank.');
+            return false;   
+        } else if ( !regexTest(regex, obj.val()) ) {
+            console.log('The selected input contains invalid characters.');
+            return false;
+        }
+        
+    } else {
+        return true;   
+    }
+    
     if ( obj.attr('required') && obj.val().length == 0 ) {
         v.setErrorMessage('This field is required and cannot be left blank. :)');
         v.markInvalid(obj.attr('name'));
@@ -504,4 +529,11 @@ function regexTest(regex, str) {
         return false;
     }
     
+}
+
+function reset() {
+    $(this.errorMarker).removeClass(this.errorClass);
+    $(this.errorContainer).html('');
+    this.setFirstInvalid(null);
+    this.setHasMsg(false);
 }
