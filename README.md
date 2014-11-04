@@ -53,12 +53,19 @@ data-veriphy-Options
 
 Veriphy takes advantage of the new(ish) data- attribute in HTML. With it you can specify cool things like adding money between fields, comparing two emails together, or just comparing two fields together. ( Which only works for passwords :( )
 
++ `data-veriphy-type=""` - Specify the type of input. Allows for more customization in validation such as phone number or credit card. ( Which are the only two types as of 1.55 )
 + `data-veriphy-compare=""` - Specify the name of the field you wish to compare the current field to. Currently works with passswords and emails.
 + `data-veriphy-addto=""` - Specify the name of the field you wish to add money to. Can be output using..
 + `data-veriphy-outputto=""` - Specify the name of the field you wish to output addmoney to.
 + `data-veriphy-minlength=""` - Specify the minimum char count for the given field. Currently only works with password fields and will override the parameter in the options.
 
-Coming Soon: More Options!
+Coming Soon
 =======
-
+<h3>Options</h3>
 Will be added better support for more data-veriphy-* attributes. Additional options will be added as well. Things like maxLength, specific class to apply to invalid inputs, and maybe specifying error messages for each type of input. The last one is kind of a long shot. Also will be removing my co-dependency on Bootstrap regardless of how good it looks.
+
+<h3>Custom Type Functions</h3>
+Functions will be added to validate custom `data-veriphy-type=""` input types. This will help split them up from defaults such as numbers, text, etc. Will need to determine the type before checkAllInputs is run and decide which function the object needs to be sent to.
+Up first on this custom list will be:
++ Phone numbers
++ Credit card numbers
