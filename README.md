@@ -51,7 +51,7 @@ Calling forth all the files
 data-veriphy-Options
 =======
 
-Veriphy takes advantage of the new(ish) data- attribute in HTML. With it you can specify cool things like adding money between fields, comparing two emails together, or just comparing two fields together. ( Which only works for passwords :( )
+Veriphy takes advantage of the new(ish) data- attribute in HTML. With it you can specify cool things like adding money between fields, comparing two emails together, or just comparing two fields together.
 
 + `data-veriphy-type=""` - Specify the type of input. Allows for more customization in validation such as phone number or credit card. ( Which are the only two types as of 1.55 )
 + `data-veriphy-compare=""` - Specify the name of the field you wish to compare the current field to. Currently works with passswords and emails.
