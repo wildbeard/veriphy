@@ -6,6 +6,8 @@
     
         <title>Veriphy Demo</title>
         
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         
         <link rel="stylesheet" href="veriphy.css" media="screen" />
@@ -33,11 +35,11 @@
             
             <p>Below you will find some examples of how veriphy works. Just give the form a quick submit to see it in action.</p>
             
-            <p>Oh and this isn't mobile friendly because I'm lazy af.</p>
+            <p>Oh and this isn't mobile friendly because I'm lazy af. Okay it's a little mobile friendly.</p>
             
             <div class="row">
             
-                <div class="col-md-8">
+                <div class="col-md-8 col-sm-12 col-sx-12">
                 
                     <h2>Login</h2>
                     
@@ -59,38 +61,18 @@
                         
                     </form>
                     
-                    <h2>Login Part Duece</h2>
-                    
-                    <form id="theForm1" class="form-inline">
-                        <div class="form-group input-marker">
-                            <label class="control-label">Username</label>
-                            <input type="text" name="uNameOne" class="form-control" data-veriphy-minlength="8" data-veriphy-maxlength="15" required />
-                        </div>
-                        <div class="form-group input-marker">
-                            <label class="control-label">Password</label>
-                            <input type="password" name="passOne" class="form-control" data-veriphy-compare="passTwo" data-veriphy-minlength="8" data-veriphy-maxlength="15" required />
-                        </div>
-                        <div class="form-group input-marker">
-                            <label class="control-label">Password</label>
-                            <input type="password" name="passTwo" class="form-control" data-veriphy-minlength="8" data-veriphy-maxlength="15" required />
-                        </div>
-                        <div class="form-group">
-                            <button type="button" class="btn btn-success btn-sm" onclick="validateForm('theForm1')">Login</button>
-                        </div>
-                    </form>
-                    
                     <h2>Email Stuff</h2>
                     
                     <form id="theForm2">
                         
                         <div class="form-group input-marker">
                             <label>Email</label>
-                            <input type="email" name="pEmail" class="form-control" data-veriphy-compare="cpEmail" size="50" />
+                            <input type="email" name="pEmail" class="form-control" data-veriphy-compare="cpEmail" />
                         </div>
                         
                         <div class="form-group input-marker">
                             <label>Confirm Email</label>
-                            <input type="email" name="cpEmail" class="form-control" size="50" />
+                            <input type="email" name="cpEmail" class="form-control"  />
                         </div>
                         
                         <div class="form-group">
@@ -115,6 +97,18 @@
                         </div>
                     </form>
                     
+                    <h2>Date Of Birth</h2>
+                    
+                    <form id="theForm4">
+                        <div class="form-group input-marker">
+                            <label>Date of Birth</label>
+                            <input type="text" name="dob" class="form-control" data-veriphy-type="dob" data-veriphy-mindob="12/31/1998" data-veriphy-maxdob="01/01/1996" placeholder="Ex: 01/30/1993" required />
+                        </div>
+                        <div class="form-group">
+                            <button type="button" class="btn btn-success btn-sm" onclick="validateForm('theForm4')">Check Age</button>
+                        </div>
+                    </form>
+                    
                     <div class="well well-sm">
                     
                         <h4>JS Errors:</h4>
@@ -125,7 +119,7 @@
                     
                 </div>
                 
-                <div class="col-md-4">
+                <div class="col-md-4 col-sm-12 col-xs-12">
                     <div>
                         <h3>Form Info</h3>
                         <div id="errorContainer">

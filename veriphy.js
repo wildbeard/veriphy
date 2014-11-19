@@ -1,14 +1,14 @@
 /*
     Author: Wild Beard
     Date Created: 09/30/2014
-    Last Updated: 11/4/2014
+    Last Updated: 11/19/2014
     Description: 
     A totally awesome and not overly complicated way to validate forms. (Sarcasm?)
     Notes:
     When passing in a regex as a string you must first escape the first \, so \w becomes \\w. Or you know, just pass in the regex \w.
     Debating on where to place credit card validation: numbers or text...Seems obvious but still..
     Will need to do checking for compareto, if it has a compareto on ANY input type, do the compare.
-    Version: 1.55
+    Version: 1.6
 */
 
 var hasError = false;
@@ -16,47 +16,18 @@ var firstInvalid = null;
 
 var veriphy = function(options) {
     
-    // If you don't specify a form object when creating the object you have to do it here
-    // So either way you need stop being lazy and give the code what it needs to work. :)
-    // Provide a jQuery style selector, by default is set to #theForm
     this.formContainer = options.formContainer || "#theForm";
-    
-    // You don't have to specify an email pattern because this one is amazing..sort of
-    // This one is widely accepted as the 'go-to email pattern'
     this.emailPattern = options.emailPattern || /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/i;
     this.phonePattern = options.phonePattern || /(\([0-9]{3}\) |\([0-9]{3}\)\s*?)[0-9]{3}[-\s*]?[0-9]{4}/g;
-    
-    // Stop being lazy, specifiy an error message
-    // Please note that this is for fields that aren't caught in the code below and need a generic error
     this.errorMsg = options.errorMsg || 'Input error. Please correct the error(s) before continuing.';
-    
-    // If you don't specify a place to write out the error it is going to print it to the console
-    // If it prints out to the console then the user is unaware. If the user is unaware they complain
-    // When they complain they call tech support. When they call tech support your techies flip out and go on strike
-    // When the techies go on strike the internet dies. Don't let the internet die.
     this.errorContainer = options.errorContainer || 'console';
-    
-    // Scroll this many pixels higher than the object that was bad
-    // Remember: You always want the higher ground.
     this.scrollOffset = options.offset || 25;
-    
-    // Controls which inputs can be marked as invald. This should be the container
-    // that holds the input. By default it is set to .error-marker and if changed
-    // should also include a jQuery style selector.
     this.errorMarker = options.errorMarker || '.error-marker';
-    
-    // Provides the class that will let the user know if they've goofed up on a specific input
-    // or if the input is valid.
-    // This is applied to the element(s) found by errorMarker
     this.errorClass = options.errorClass || 'invalid-input';
     this.validClass = options.validClass || 'valid-input'; // Unused ( 1.5 )
-    
-    // Minumum and max length of input fields.
-    this.minLength = options.minLength || 8;
+    this.minLength = options.minLength || 8;  // Used on password and text validation
     this.maxLength = options.maxLength || 25; // As of 1.5+ used on the following: text validation :(
-    
     this.hasErrorMsg = false;
-    
     // Created a function to reset all the changing variables such as firstInvalid and error messages.
     // This is used in checkAllInputs() to reset the form so things will be re-checked.
     this.reset = reset;
@@ -86,10 +57,7 @@ veriphy.prototype = {
     checkAllInputs: function() {
         
         var v = this;
-        
-        // Reset all variables here
         v.reset();
-        // End resets
         
         $(v.formContainer + ' input, ' + v.formContainer + ' select').each(function(i) {
            
@@ -99,7 +67,6 @@ veriphy.prototype = {
             
         });
         
-        //console.log('FirstI: ' + v.getFirstInvalid());
         if ( v.getFirstInvalid() == null ) {
             return true;
         } else {
@@ -116,7 +83,11 @@ veriphy.prototype = {
         var x;
             
         if ( type == 'text' ) {
-            x = validateText(obj, v);
+            if ( obj.data('veriphy-type') == 'dob' ) {
+                x = validateDOB(obj, v);
+            } else {
+                x = validateText(obj, v);
+            }
             if ( !x && v.getFirstInvalid() == null ) {
                 v.setFirstInvalid(obj);
             } else {
@@ -251,14 +222,17 @@ function validateText(obj, v) {
             v.setErrorMessage('The selected field is required and cannot be left blank.');
             return false;
         }
-        if ( !regexTest(v.phonePattern, obj.val()) ) {
+        if ( req && !regexTest(v.phonePattern, obj.val()) ) {
+            v.setErrorMessage('Phone number is in an improper format. Try something like: (555) 555-5555.');
+            return false;
+        } else if ( !req && !regexTest(v.phonePattern, obj.val()) ) {
             v.setErrorMessage('Phone number is in an improper format. Try something like: (555) 555-5555.');
             return false;
         }
     }
     
     if ( req ) {
-        if ( (l == 0 && obj.val().length == 0) || (l == 0 && obj.val() == " ") ) {
+        if ( (l == 0 && obj.val().length == 0) || (l == 0 && obj.val() == " ") || ( obj.val().length == 0 || obj.val() == " " ) ) {
             v.setErrorMessage('The selected field is required and cannot be left blank.');
             return false;
         } else {
@@ -538,3 +512,67 @@ function reset() {
     this.setFirstInvalid(null);
     this.setHasMsg(false);
 }
+
+function validateDOB(obj, v) {
+    
+    // dobMax = Can't be any older than this.
+    // dobMin = Can't be any younger than this.
+    var dobMin, dobMax, dob = new Date(obj.val()), curr= new Date(), age, regex = new RegExp(/[01-12]{2}\/[01-31]{2}\/[1-2][0-9]{3}/g);
+    curr = curr.getFullYear();
+    
+    if ( !obj.attr('required') ) {
+        // Not required but still need to make sure it is in a decent format
+        if ( regexTest(regex, obj.val()) ) {
+            return true;   
+        } else {
+            v.setErrorMessage('The input was in the improper format. Please try mm/dd/yyyy ex: 01/23/2000.');
+            return false;
+        }
+    } else {
+        // It is required let's do some stuff here!
+        if ( regexTest(regex, obj.val()) ) {
+            // Passed regex test now let's do other validation.
+            
+            if ( obj.data('veriphy-mindob') && obj.data('veriphy-maxdob') ) {
+                // They have an age group requirement.
+                dobMin = new Date(obj.data('veriphy-mindob')).getFullYear();
+                dobMax = new Date(obj.data('veriphy-maxdob')).getFullYear();
+                age = curr - dob.getFullYear();
+                
+                if ( age <= ( curr - dobMax ) && age >= ( curr - dobMin ) ) {
+                    // They meet the strict age requirements. Good for them.
+                    return true;  
+                } else {
+                    v.setErrorMessage('You must be born between ' + dobMax + ' and ' + dobMin + '.');
+                    return false;
+                }
+                
+            } else if ( obj.data('veriphy-maxdob') ) {
+                // They have a max age requirement.
+                dobMax = new Date(obj.data('veriphy-maxdob')).getFullYear();
+                age = curr - dob.getFullYear();
+                if ( age > ( curr - dobMax ) ) {
+                    v.setErrorMessage('You do not meet the age requirements. You must be younger than ' + ( curr - dobMax ) + ' years old.');
+                    return false;
+                }
+            } else if ( obj.data('veriphy-mindob') ) {
+                dobMin = new Date(obj.data('veriphy-mindob')).getFullYear();
+                age = curr - dob.getFullYear();
+                if ( age < ( curr - dobMin ) ) {
+                    v.setErrorMessage('You do not meet the age requirements. You must be at least ' + ( curr - dobMin ) + ' years old.');
+                    return false;
+                }
+            } else if ( !obj.data('veriphy-mindob') && !obj.data('veriphy-maxdob') ) {
+                // They don't have either min or max dob specified.
+                // That means we can't do crap with it and since it passed regex we have to return true.
+                return true;   
+            }
+            
+        } else {
+            // Failed regex test
+            v.setErrorMessage('The input was in the improper format. Please try mm/dd/yyyy ex: 01/23/2000.');
+            return false;
+        }
+    }
+    
+} // End validateDOB()

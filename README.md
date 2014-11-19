@@ -12,7 +12,6 @@ Veriphy Options
 =======
 
 ```javascript
-// All of these are the defaults
 var v = new veriphy({
   formContainer: "#zzz",
   errorContainer: "#zzz",
@@ -35,7 +34,6 @@ Calling forth all the files
 <script src="js/jquery.js"></script>
 <script src="js/veriphy.js"></script>
 <script>
-  // All of these are the defaults
   var v = new veriphy({
     formContainer: "#zzz",
     errorContainer: "#zzz",
