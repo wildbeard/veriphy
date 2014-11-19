@@ -6,7 +6,6 @@
     A totally awesome and not overly complicated way to validate forms. (Sarcasm?)
     Notes:
     When passing in a regex as a string you must first escape the first \, so \w becomes \\w. Or you know, just pass in the regex \w.
-    Debating on where to place credit card validation: numbers or text...Seems obvious but still..
     Will need to do checking for compareto, if it has a compareto on ANY input type, do the compare.
     Version: 1.6
 */

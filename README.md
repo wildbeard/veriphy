@@ -8,13 +8,17 @@ Overview
 
 Using veriphy is pretty straight forward. Include veriphy.js after you include jQuery, wherever that might be, initialize veriphy as an object, and pass veriphy the options you want to set. Most of the variables passed to veriphy are optional but may restrict the overal usage. Such things like the container of the form or where the error message should be displayed.
 
+Check out the demo page to see it in action. It's in the repo for you!
+
 Veriphy Options
 =======
 
 ```javascript
 var v = new veriphy({
-  formContainer: "#zzz",
-  errorContainer: "#zzz",
+  formContainer: "#theForm",
+  errorContainer: "console", // If not specified will write out to console. Not good for users.
+  errorMarker: ".error-marker",
+  errorClass: "invalid-input",
   errorMarker: ".error-marker",
   errorMsg: "Default error message.",
   minLength: 8, // Minimum length of fields - currently only used for passwords
@@ -35,9 +39,10 @@ Calling forth all the files
 <script src="js/veriphy.js"></script>
 <script>
   var v = new veriphy({
-    formContainer: "#zzz",
-    errorContainer: "#zzz",
+    formContainer: "#theForm",
+    errorContainer: "console", // If not specified will write out to console. Not good for users.
     errorMarker: ".error-marker",
+    errorClass: "invalid-input",
     errorMsg: "Default error message.",
     minLength: 8, // Minimum length of fields - currently only used for passwords
     offset: 25 // Scroll doesn't play well sometimes so you have to offset it.
@@ -65,5 +70,6 @@ Will be added better support for more data-veriphy-* attributes. Additional opti
 <h3>Custom Type Functions</h3>
 Functions will be added to validate custom `data-veriphy-type=""` input types. This will help split them up from defaults such as numbers, text, etc. Will need to determine the type before checkAllInputs is run and decide which function the object needs to be sent to.
 Up first on this custom list will be:
-+ Phone numbers
-+ Credit card numbers
++ ~~Phone numbers~~ - Added in 1.55
++ ~~Credit card numbers~~ - Added in 1.5
++ ~~Date of Birth~~ - Added in 1.55. Will probably be repurposed as date validation.
