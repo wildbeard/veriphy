@@ -463,7 +463,7 @@ function validatePassword(obj, v) {
                 v.setErrorMessage('Passwords do not match.');
                 v.markInvalid(obj.attr('name'));
                 return false;
-            } else if ( obj.val() === $('[name="' + cTo + '"').val() ) {
+            } else if ( obj.val() === $('[name="' + cTo + '"]').val() ) {
                 return true; // Passwords match and meet requirements   
             }
         } else {
