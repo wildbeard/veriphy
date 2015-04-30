@@ -1,15 +1,8 @@
 /*
     Author: Press
-<<<<<<< HEAD
     Date: 04/30/2015
     Description: Validate user input in forms. Stop the world from inputting bad stuff.
     Version: 2.0
-=======
-    Date: 02/06/2015
-    Description: Validate user input in forms. Stop the world from inputting bad stuff.
-    Version: 2.0
-    Notes: Let's play off of data-attributes more for specific type of validation or parameters to play by.
->>>>>>> origin/master
 */
 
 function Veriphy(options) {
@@ -40,8 +33,4 @@ function Veriphy(options) {
         // This will be our entry point.
     };
     
-<<<<<<< HEAD
 }
-=======
-};
->>>>>>> origin/master
