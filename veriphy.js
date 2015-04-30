@@ -2,7 +2,7 @@
     Author: Press
     Date: 02/06/2015
     Description: Validate user input in forms. Stop the world from inputting bad stuff.
-    Version: 0.2.0
+    Version: 2.0
     Notes: Let's play off of data-attributes more for specific type of validation or parameters to play by.
 */
 
