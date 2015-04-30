@@ -1,5 +1,5 @@
 /*
-    Author: Preston Haddock
+    Author: Press
     Date: 02/06/2015
     Description: Validate user input in forms. Stop the world from inputting bad stuff.
     Version: 0.2.0
